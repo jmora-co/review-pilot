@@ -2,7 +2,7 @@
 
 Use GitHub review-thread nodes rather than flat pull-request comments.
 
-Only the Resolution Lead may mutate GitHub. `auto-local` performs read operations only. `auto-publish` authorizes the mutations below only after the complete local implementation and verification phase succeeds without an outstanding autonomy stop condition.
+Only the Resolution Lead may mutate GitHub. `auto-local` performs read operations only. `auto-publish` authorizes the mutations below only after the complete local implementation and verification phase succeeds without an outstanding autonomy stop condition. This gate is atomic, but the sequence of Git and GitHub mutations is not transactional; recover partial success idempotently.
 
 ## Read contract
 

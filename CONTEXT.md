@@ -41,15 +41,15 @@ A defect or opportunity discovered during a Resolution Session that no Active Th
 _Avoid_: Bonus fix, related comment
 
 **Change Surface**:
-The set of modules, contracts, and checks that a Cluster Proposal identifies as likely to be affected. Cluster Approval authorizes changes within that surface, not only on the lines where Active Threads are anchored.
+The set of modules, contracts, and checks likely to be affected by a proposed resolution. In `guided` mode Cluster Approval authorizes its declared surface; in an automatic Execution Mode active-thread authority permits coherent changes within it.
 _Avoid_: Changed lines, unrestricted scope
 
 **Material Expansion**:
-An unanticipated growth of the Change Surface that introduces another module, public contract, migration, or significant behavior. It requires an updated Cluster Proposal and a new Cluster Approval.
+An unanticipated growth of the Change Surface that introduces another module, public contract, migration, or significant behavior. It requires an updated Cluster Proposal and approval in `guided` mode; in an automatic Execution Mode it becomes an Autonomy Stop Condition when not clearly required by active feedback.
 _Avoid_: Minor adjustment, implementation detail
 
 **Verification Evidence**:
-The results of the proportional checks declared in a Cluster Proposal that show whether the implemented resolution satisfies its Active Threads without introducing detectable regressions.
+The results of proportional checks that show whether an implemented resolution satisfies its Active Threads without introducing detectable regressions.
 _Avoid_: Full test suite, confidence statement
 
 **External Failure**:
@@ -61,7 +61,7 @@ The complete, prioritized internal view of Comment Clusters detected at the star
 _Avoid_: Comment list, fixed backlog
 
 **Current Cluster**:
-The only Comment Cluster currently authorized for implementation. It may contain parallel Workstreams, but other clusters remain unchanged until it closes.
+The only Comment Cluster currently being implemented. In `guided` mode it is the approved cluster; automatic Execution Modes select it internally. It may contain parallel Workstreams, but other clusters remain unchanged until it closes.
 _Avoid_: Active comments, parallel batch
 
 **Thread Resolution**:
@@ -77,7 +77,7 @@ The demonstrable root-cause, shared-solution, or dependency relationship that ju
 _Avoid_: Similarity, heuristic match
 
 **Session Change**:
-A modification produced by an authorized Workstream during the Resolution Session and attributable to its Current Cluster.
+A modification produced during the Resolution Session under the selected Execution Mode and attributable to an Active Thread and, when applicable, its Current Cluster or Workstream.
 _Avoid_: Working tree change, PR change
 
 **Pre-existing Change**:
@@ -101,7 +101,7 @@ The explicit assignment of an objective, write surface, constraints, and checks 
 _Avoid_: Subagent prompt, informal task
 
 **Thread Disposition**:
-The initial classification of an Active Thread as a change request, question, already addressed, blocked, or non-actionable item. It determines whether the thread participates in implementation or advances directly to a Thread Resolution.
+The initial classification of an Active Thread as a change request, question, already addressed, blocked or ambiguous, or non-actionable item. It determines whether the thread participates in implementation, advances directly to a Thread Resolution, or suspends for clarification.
 _Avoid_: Priority, reviewer type
 
 **PR Target**:
@@ -139,3 +139,11 @@ _Avoid_: Remembered preference, implicit autonomy, response mode
 **Autonomy Stop Condition**:
 A condition that suspends an automatic Execution Mode because proceeding requires human authority or judgment: conflicting feedback or repository contracts, destructive history or worktree operations, scope outside active threads, high-impact changes not clearly required by those threads, insufficient verification evidence, any External Failure encountered during verification, unavailable credentials or permissions, or material Session Drift. It is internal operating state and is never disclosed in pull-request comments. Ordinary technical choices within the authorized feedback remain the agent's responsibility.
 _Avoid_: Cluster approval, routine uncertainty, implementation preference
+
+**Eligible Thread**:
+An Active Thread that may advance in a specific phase. Implementation eligibility requires an authorized supported change; response eligibility requires enough published evidence for a truthful independent reply; resolution eligibility requires the thread's intent to be fully satisfied.
+_Avoid_: Globally eligible comment, automatically resolved thread
+
+**Publication Gate**:
+The all-local checkpoint in `auto-publish` that must pass before any remote mutation begins. The gate is atomic, but the subsequent commit, push, reply, and resolution operations are not transactional and may require idempotent recovery from partial success.
+_Avoid_: Transactional publication, guaranteed rollback

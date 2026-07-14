@@ -6,7 +6,7 @@ Review Pilot resolves active GitHub pull-request feedback with an explicit per-s
 
 - `guided`: analyze one current item at a time and preserve separate approvals for implementation, publication, replies, and resolution.
 - `auto-local`: autonomously analyze, implement, and verify all eligible active threads; leave every change local.
-- `auto-publish`: perform the complete local phase, then atomically commit, push, reply to, and resolve eligible threads.
+- `auto-publish`: perform the complete local phase, cross the publication gate, then commit, push, reply to, and resolve eligible threads with idempotent recovery.
 
 The mode is explicitly selected at startup and applies only to the current session. When absent, Review Pilot asks once and recommends `auto-local`. Publication authority is never inferred or remembered. Authority may be reduced at any time; expanding from local to publication requires explicit authorization.
 
@@ -21,7 +21,7 @@ The mode is explicitly selected at startup and applies only to the current sessi
 7. Verify proportionally and correct failures caused by session changes.
 8. Refresh remote state and incorporate eligible new threads or material drift.
 9. In `auto-local`, stop with attributable local changes and verification evidence.
-10. In `auto-publish`, publish only after the complete local phase succeeds without an outstanding stop condition.
+10. In `auto-publish`, cross the publication gate only after the complete local phase succeeds without an outstanding stop condition.
 11. Draft an independent contextual response for every addressed thread and resolve only eligible threads.
 
 ## Decision evidence
@@ -48,11 +48,13 @@ Subagents may investigate distinct areas or edit disjoint surfaces under Workstr
 
 Checks are proportional to repository guidance and change risk. Session-caused failures are diagnosed and repaired autonomously. An unchanged failed strategy is not repeated without new evidence; stalled work changes approach and eventually suspends when no supported route remains. Any external or pre-existing failure suspends automatic execution and is not repaired under incidental authority.
 
-## Atomic publication
+## Publication gate
 
-`auto-publish` completes implementation and verification for all eligible threads before any remote mutation. With no outstanding stop condition, it stages only attributable session changes, creates coherent new commits, pushes normally to the PR head, then replies to and resolves eligible threads.
+`auto-publish` completes implementation and verification for all implementation-eligible threads before any remote mutation. With no outstanding stop condition, it crosses an atomic gate: stage only attributable session changes, create coherent new commits, push normally to the PR head, then reply to and resolve eligible threads. When no Session Changes are needed, it verifies the current PR head and proceeds without an empty commit.
 
-Partial publication requires a new explicit decision after a stop condition. Ambiguous mutation failures are refreshed before retry to prevent duplicate commits or replies.
+The gate prevents intentionally starting a partial publication; Git and GitHub mutations themselves are not transactional. Partial publication requires idempotent recovery and exact reporting. A pre-gate stop requires a new explicit decision. Ambiguous mutation failures are refreshed before retry to prevent duplicate commits or replies.
+
+Eligibility is phase-specific: implementation eligibility requires an authorized supported change; response eligibility requires enough published evidence for a truthful independent reply; resolution eligibility requires the thread's intent to be fully satisfied.
 
 ## Thread outcomes
 
@@ -60,4 +62,4 @@ Change requests receive published changes; questions receive evidence-backed ans
 
 ## Traceability and completion
 
-The session internally tracks dispositions, evidence, files, checks, commits, replies, and resolutions without writing an audit artifact into the reviewed repo or PR. User-facing completion is compact and mode-specific. A session is complete only when each active thread is resolved, responded to, explicitly deferred, or blocked with a concrete internal reason.
+The session internally tracks dispositions, evidence, files, checks, commits, replies, and resolutions without writing an audit artifact into the reviewed repo or PR. User-facing completion is compact and mode-specific. A session is complete only when each active thread is resolved, responded to, or explicitly deferred. An outstanding stop condition suspends the session; a remote phase interrupted after a successful mutation is partially published.

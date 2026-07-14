@@ -25,7 +25,7 @@ Use an execution mode explicitly named in the prompt. Otherwise ask once before 
 
 - **`guided`**: present decisions and preserve separate human approval for code changes, commit, push, replies, and thread resolution.
 - **`auto-local` (recommended)**: autonomously analyze, implement, and verify every eligible active thread. Do not commit, push, reply, or resolve threads.
-- **`auto-publish`**: do everything in `auto-local`, then atomically commit and push session changes and independently reply to and resolve eligible threads.
+- **`auto-publish`**: do everything in `auto-local`, cross the all-local publication gate, then commit and push session changes and independently reply to and resolve eligible threads.
 
 An automatic mode is opt-in for the current session only. Never infer `auto-publish` from ambiguous language or remember it across sessions. The user may reduce authority at any time. Moving from `auto-local` to `auto-publish` requires explicit authorization.
 
@@ -34,7 +34,7 @@ An automatic mode is opt-in for the current session only. Never infer `auto-publ
 1. Use a supplied PR URL, number, or branch. Otherwise infer the PR from the current branch.
 2. If inference fails or is ambiguous, ask one short question for the PR or branch.
 3. Check GitHub authentication, repository identity, PR head branch, current branch, HEAD, and working-tree status.
-4. Permit read-only analysis from another branch, but require the PR head branch before editing.
+4. Permit read-only analysis from another branch, but require the PR head branch before editing. In an automatic mode, a mismatch is an autonomy stop condition; ask the user to switch or explicitly authorize the exact safe action.
 5. Record pre-existing changes before editing. Never include them in a session commit.
 6. Continue when pre-existing and session changes can be separated safely, including by exact hunks. Pause when attribution is uncertain.
 7. Never switch branches, stash, merge, rebase, reset, amend, discard changes, or force-push automatically.
@@ -65,6 +65,14 @@ Classify every active thread as a change request, question, already addressed, b
 Group change requests only when they share a demonstrated root cause, coherent shared change, dependency, or contradiction. File proximity, reviewer identity, or similar wording is not enough. Every GitHub reply must remain independently understandable.
 
 Order the inventory by dependencies, risk, and ability to unlock other work. Recalculate it after every resolution and after relevant remote drift.
+
+Determine eligibility per phase:
+
+- **implementation-eligible**: an active thread authorizes a supported code or documentation change that is not blocked or deferred
+- **response-eligible**: the current published PR state provides enough evidence for an independent, truthful reply
+- **resolution-eligible**: the thread's intent is fully satisfied by published changes or conclusive evidence
+
+A thread may be response-eligible without requiring implementation. Local-only changes never make a thread response-eligible for a claim that the PR was updated.
 
 In automatic modes, choose and execute the best-supported resolution without presenting options. In `guided`, present the current independent thread or cluster with concise genuine options, evidence, expected change surface, proportional verification, and a recommendation; obtain approval before editing.
 
@@ -117,18 +125,28 @@ Refresh remote PR commits and thread state before implementation and before publ
 
 Ignore irrelevant drift. Pause only when drift meets an autonomy stop condition. Never pull, merge, or rebase automatically. Before publication, require a stable inventory in which every eligible active thread is covered.
 
-## 9. Publish atomically
+## 9. Pass the publication gate
 
 `auto-local` stops after local implementation and verification. Report session changes, checks, and the threads they would address.
 
-`auto-publish` uses two phases:
+`auto-publish` uses a two-phase publication gate:
 
 1. Implement and verify all eligible threads locally.
-2. Only when no autonomy stop condition remains, create coherent new commit(s), push normally to the PR head branch, then reply to and resolve eligible threads.
+2. Only when no autonomy stop condition remains, begin remote mutation: create coherent new commit(s), push normally to the PR head branch, then reply to and resolve eligible threads.
 
-Do not partially publish by default. If a stop condition appears, leave all session changes local until the user resolves it, explicitly defers the blocked thread, or authorizes publication of the completed subset.
+The gate is atomic; the remote mutations are not transactional. Do not begin partial publication by default. If a stop condition appears before the gate, leave all session changes local until the user resolves it, explicitly defers the blocked thread, or authorizes publication of the completed subset. After remote mutation begins, recover idempotently from partial success and report the exact state.
 
 Stage only attributable session files or hunks. Never amend existing commits, include pre-existing changes, or force-push. Refresh after ambiguous network failures before retrying any mutation.
+
+When no Session Changes exist because every thread requires only an evidence-backed reply, verify the current PR head and stable inventory, skip empty commit/push work, and proceed directly to eligible replies and resolutions.
+
+In `guided` mode after approved implementation and verification:
+
+1. Show Session Changes separately from Pre-existing Changes.
+2. Ask whether Review Pilot or the user will publish.
+3. If Review Pilot publishes, obtain separate authorization for commit and push, stage only attributable changes, and verify the pushed head.
+4. If the user publishes, wait until they confirm the changes are visible on the PR.
+5. Ask once whether eligible Thread Resolutions should be published automatically or reviewed one at a time.
 
 ## 10. Respond to threads
 
@@ -151,6 +169,6 @@ Maintain an internal session record of thread dispositions, clusters, evidence, 
 
 - `auto-local`: report local changes, checks, and threads covered.
 - `auto-publish`: report commits/push and counts of replied, resolved, and intentionally open threads.
-- stopped session: report only the stop condition, relevant evidence, and concrete choices.
+- suspended session: report only the stop condition, relevant evidence, and concrete choices.
 
-Finish only when every active thread is resolved, responded to, explicitly deferred, or blocked with a concrete internal reason. Avoid a redundant narrative recap.
+A session is **completed** only when every active thread is resolved, responded to, or explicitly deferred. An unresolved autonomy stop condition makes the session **suspended**, not completed. If remote publication has begun but cannot finish, report it as **partially published** with exact successful and pending mutations. Avoid a redundant narrative recap.
