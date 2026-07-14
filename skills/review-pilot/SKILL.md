@@ -163,6 +163,17 @@ For every active thread:
 
 Write each reply in the thread's predominant language. Do not mention clusters, agents, approvals, internal sources, or tools. Resolve only after a required reply succeeds and only when published changes or conclusive evidence fully address the thread. Refresh immediately before mutation and skip a thread another participant already resolved.
 
+Apply this response style to every reply:
+
+- Prefer one short paragraph of one to three sentences.
+- Be friendly, neutral, professional, and factual.
+- Do not flatter, praise, thank, or evaluate the reviewer. Avoid phrases such as “great catch,” “good point,” or “thanks for noticing.”
+- State what changed or explain the decision directly; do not defend, over-explain, or restate the entire thread.
+- Mention verification only when it adds useful confidence.
+- Omit ceremonial openings and closings such as “let me know what you think.”
+
+Use the natural shape: `Updated: <concrete change>. <relevant result or verification, when useful>.` Adapt it to the thread's language rather than forcing the literal prefix.
+
 ## Completion and traceability
 
 Maintain an internal session record of thread dispositions, clusters, evidence, files, checks, commits, replies, and resolutions. Do not write this record into the reviewed repository or PR discussion.

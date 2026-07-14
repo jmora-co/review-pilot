@@ -147,3 +147,7 @@ _Avoid_: Globally eligible comment, automatically resolved thread
 **Publication Gate**:
 The all-local checkpoint in `auto-publish` that must pass before any remote mutation begins. The gate is atomic, but the subsequent commit, push, reply, and resolution operations are not transactional and may require idempotent recovery from partial success.
 _Avoid_: Transactional publication, guaranteed rollback
+
+**Response Style**:
+The required voice of every Thread Resolution: one short paragraph when possible, friendly, neutral, professional, and factual. It states the concrete change or decision directly, mentions verification only when useful, and excludes flattery, praise, thanks, reviewer evaluation, ceremonial openings, unnecessary closings, and internal process details.
+_Avoid_: Great catch, good point, thanks for noticing, let me know what you think

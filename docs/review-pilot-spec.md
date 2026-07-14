@@ -60,6 +60,8 @@ Eligibility is phase-specific: implementation eligibility requires an authorized
 
 Change requests receive published changes; questions receive evidence-backed answers; already-addressed or non-actionable threads receive concise explanations. Partial or ambiguous threads stay open. Internal stop conditions are never disclosed or replied to. Every response stands alone, uses the thread's language, and omits clusters, tools, agents, and internal reasoning.
 
+Responses prefer one short paragraph of one to three sentences. Their tone is friendly, neutral, professional, and factual, with no flattery, praise, thanks, reviewer evaluation, ceremonial opening, or unnecessary closing. They state the concrete change or decision directly and mention verification only when it adds useful confidence.
+
 ## Traceability and completion
 
 The session internally tracks dispositions, evidence, files, checks, commits, replies, and resolutions without writing an audit artifact into the reviewed repo or PR. User-facing completion is compact and mode-specific. A session is complete only when each active thread is resolved, responded to, or explicitly deferred. An outstanding stop condition suspends the session; a remote phase interrupted after a successful mutation is partially published.

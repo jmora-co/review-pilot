@@ -1,6 +1,6 @@
 <div align="center">
 
-# ✈️ Review Pilot
+# 🤖 Review Pilot
 
 **PR feedback in. Verified fixes out.**
 
@@ -22,10 +22,10 @@ gh auth login
 
 ## Choose your flight mode
 
-| Mode | What it does |
-| --- | --- |
-| `guided` | Recommends a resolution and asks before each meaningful action. |
-| `auto-local` | Resolves and verifies every eligible thread locally. No commit or push. |
+| Mode           | What it does                                                               |
+| -------------- | -------------------------------------------------------------------------- |
+| `guided`       | Recommends a resolution and asks before each meaningful action.            |
+| `auto-local`   | Resolves and verifies every eligible thread locally. No commit or push.    |
 | `auto-publish` | Resolves, verifies, commits, pushes, replies, and closes eligible threads. |
 
 Automatic modes stop when human authority is genuinely required—conflicting feedback, unsafe Git operations, scope expansion, missing access, or failed verification.
