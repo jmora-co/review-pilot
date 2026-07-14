@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Pilot"
+  short_description: "Resolve PR feedback with guided autonomy"
+  default_prompt: "Use $review-pilot to analyze and resolve the active review threads on my pull request."
