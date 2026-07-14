@@ -1,132 +1,156 @@
 ---
 name: review-pilot
-description: Proactively analyze and resolve active GitHub pull-request review threads with low-friction human approval, root-cause clustering, optional subagent workstreams, proportional verification, Git publication, and contextual thread replies. Use when the user asks to review, address, fix, or resolve PR comments or active review threads.
+description: Analyze and resolve active GitHub pull-request review threads in guided, autonomous local, or autonomous publication mode, with evidence-backed decisions, proportional verification, optional subagent workstreams, and independent contextual replies. Use when the user asks to review, address, fix, or resolve PR comments or active review threads.
 ---
 
 # Review Pilot
 
-Resolve active PR feedback end to end while preserving human control over code changes and external actions.
+Resolve active PR feedback end to end. The user chooses how much authority to grant at the start; automatic modes make ordinary technical decisions without human intervention and pause only at explicit safety boundaries.
 
 ## Operating rules
 
-- Ask only for the PR URL, number, or branch when none is supplied and it cannot be inferred.
-- Keep the full inventory internal. Present only the current thread or cluster.
+- Ask only for information that cannot be inferred safely.
+- Keep the full inventory internal. Present only the current item in `guided` mode.
 - Read broadly for context; change code only on behalf of active, unresolved threads.
-- Never overwrite pre-existing local changes.
-- Never commit, push, reply, resolve, switch branches, stash, merge, or rebase without the applicable explicit authorization.
-- Continue automatically after each decision. Do not ask ceremonial questions such as whether to continue.
-- Keep options concise and easy to scan. Present only genuine alternatives and mark one recommendation.
+- Preserve pre-existing local changes and attribute every session change.
+- Never expose clusters, subagents, tools, internal evidence logs, or autonomy stop conditions in PR replies.
+- Continue automatically after each decision. Do not ask ceremonial questions.
+- Do not weaken types, checks, or coverage merely to make verification pass.
 
 Read [references/github-operations.md](references/github-operations.md) before querying or mutating GitHub review threads.
 
-## 1. Establish the PR target
+## 1. Select the execution mode
 
-1. Use a supplied PR URL/number/branch. Otherwise infer the PR from the current branch.
+Use an execution mode explicitly named in the prompt. Otherwise ask once before expensive analysis or mutation:
+
+- **`guided`**: present decisions and preserve separate human approval for code changes, commit, push, replies, and thread resolution.
+- **`auto-local` (recommended)**: autonomously analyze, implement, and verify every eligible active thread. Do not commit, push, reply, or resolve threads.
+- **`auto-publish`**: do everything in `auto-local`, then atomically commit and push session changes and independently reply to and resolve eligible threads.
+
+An automatic mode is opt-in for the current session only. Never infer `auto-publish` from ambiguous language or remember it across sessions. The user may reduce authority at any time. Moving from `auto-local` to `auto-publish` requires explicit authorization.
+
+## 2. Establish the PR target
+
+1. Use a supplied PR URL, number, or branch. Otherwise infer the PR from the current branch.
 2. If inference fails or is ambiguous, ask one short question for the PR or branch.
 3. Check GitHub authentication, repository identity, PR head branch, current branch, HEAD, and working-tree status.
 4. Permit read-only analysis from another branch, but require the PR head branch before editing.
-5. Inventory pre-existing changes. If they overlap the expected change surface, pause before editing.
-6. Do not update or switch the local branch automatically.
+5. Record pre-existing changes before editing. Never include them in a session commit.
+6. Continue when pre-existing and session changes can be separated safely, including by exact hunks. Pause when attribution is uncertain.
+7. Never switch branches, stash, merge, rebase, reset, amend, discard changes, or force-push automatically.
 
-## 2. Collect full-fidelity context
+## 3. Collect full-fidelity context
 
-Use `scripts/fetch_review_threads.py` when `gh` is available. Accept an alternative GitHub connector only when it exposes the complete thread conversation plus `isResolved`, `isOutdated`, file, line, and thread/node IDs.
+Use `scripts/fetch_review_threads.py` when `gh` is available. Accept an alternative GitHub connector only when it exposes the complete conversation plus `isResolved`, `isOutdated`, file, line, and thread/node IDs.
 
-Collect:
+Collect PR metadata and diff; every unresolved thread, including outdated threads; useful resolved threads and general discussion; repository instructions; relevant code, tests, and history.
 
-- PR metadata and diff
-- every unresolved review thread, including outdated threads
-- resolved threads and general PR discussion as context evidence when useful
-- repository instructions and relevant code/history
+Never treat a flat comment list as equivalent to review threads. Never treat `outdated` as `resolved`.
 
-Never treat a flat list of comments as equivalent to review threads. Never treat `outdated` as `resolved`.
+Ground technical decisions in this order:
 
-## 3. Build the internal inventory
+1. repository instructions and verifiable contracts
+2. current code, tests, history, and PR diff
+3. complete thread and PR conversation
+4. official dependency documentation
+5. trustworthy MCPs, connectors, and technical sources
+6. general engineering conventions
 
-Classify each active thread as:
+Keep evidence and alternatives internal. If authoritative sources conflict or evidence is insufficient for a material decision, pause under an autonomy stop condition.
 
-- change request
-- question
-- already addressed
-- blocked or ambiguous
-- non-actionable
+## 4. Build the internal inventory
 
-Group change requests only when they share a demonstrated root cause, a coherent shared change, a dependency, or a contradiction that requires joint design. File proximity, reviewer identity, or similar wording is not enough.
+Classify every active thread as a change request, question, already addressed, blocked or ambiguous, or non-actionable.
 
-Keep a thread independent when clustering is uncertain. Detect conflicting reviewer intent and ask for a human decision before implementation.
+Group change requests only when they share a demonstrated root cause, coherent shared change, dependency, or contradiction. File proximity, reviewer identity, or similar wording is not enough. Every GitHub reply must remain independently understandable.
 
-Order the inventory by dependencies, risk, and ability to unlock other work. Show at most one short count line, then proceed directly to the current item.
+Order the inventory by dependencies, risk, and ability to unlock other work. Recalculate it after every resolution and after relevant remote drift.
 
-## 4. Propose the current item
+In automatic modes, choose and execute the best-supported resolution without presenting options. In `guided`, present the current independent thread or cluster with concise genuine options, evidence, expected change surface, proportional verification, and a recommendation; obtain approval before editing.
 
-For an independent thread, show its intent, evidence, concise options, and recommendation.
+## 5. Autonomy stop conditions
 
-For a cluster, show:
+In `auto-local` and `auto-publish`, pause and ask for one focused human decision when any of these occurs:
 
-- included threads and cluster rationale
-- root cause
-- concise viable options and recommendation
-- expected files, modules, contracts, and auxiliary changes
-- proportional verification
-- proposed independent workstreams, if useful
+- conflicting reviewer intent or conflict with a verifiable repository contract
+- destructive history/worktree action or an unsafe branch operation would be required
+- work outside the authority created by active threads would be required
+- a migration, secret, permission, infrastructure change, or public-contract change is not clearly required by the feedback
+- verification evidence is insufficient
+- any external or pre-existing verification failure is observed
+- authentication or permissions are unavailable
+- session drift materially changes intent, evidence, cluster membership, branch safety, or change surface
+- pre-existing and session changes cannot be attributed safely
+- repeated attempts no longer produce evidence-backed progress
 
-Do not fabricate multiple options when only one is reasonable. Include “no code change” when evidence or a reply can legitimately satisfy the thread.
+This is internal operating state. Do not post it to the PR. Show the user the relevant evidence and concrete choices. They may authorize the exact action, choose an alternative, change scope or mode, defer the affected thread, or repair access. Resume automatically after the condition is resolved.
 
-Request one cluster approval before editing any part of a cluster. Approval covers only the declared change surface. Pause for renewed approval if implementation expands materially into another module, public contract, migration, or behavior.
+Ordinary technical choices, coherent internal auxiliary changes, and selection among supported implementations are not stop conditions.
 
-## 5. Implement with controlled parallelism
+## 6. Implement and delegate
 
-Use subagents when the work is large and can be divided into independent workstreams:
+In automatic modes, process all eligible threads without cluster approvals. In `guided`, approval covers only the declared change surface and material expansion requires renewed approval.
 
-- Run investigators in parallel for distinct read-only areas.
-- Give every delegated workstream an explicit objective, write surface, constraints, and verification.
-- Run implementers in parallel only when write surfaces are disjoint.
-- Serialize work that may touch the same file or contract.
-- Instruct subagents not to commit, push, mutate GitHub, or expand scope.
-- Require them to report modified files, decisions, checks, and remaining risks.
+Use subagents automatically for large independent workstreams when available:
 
-The lead agent owns root-cause coherence, inspects the combined diff, reconciles conflicts, and runs integrated verification. Treat out-of-scope findings as incidental findings: report them separately without fixing them under the current approval.
+- Give each one a Workstream Contract containing its objective, allowed write surface, constraints, and checks.
+- Parallelize read-only investigation across distinct areas.
+- Parallelize implementation only across disjoint write surfaces.
+- Require findings outside the contract to return to the Resolution Lead without expanding scope.
+- Forbid subagents from committing, pushing, replying, resolving threads, changing branches, or mutating GitHub.
 
-Process one approved cluster at a time. Recalculate the internal inventory after each cluster because one fix may absorb or invalidate others.
+The Resolution Lead owns decisions, root-cause coherence, combined-diff review, integrated verification, and all publication.
 
-## 6. Verify proportionally
+Treat incidental findings as out of scope. Do not fix them merely because they were discovered.
 
-Do not run broad tests, typechecks, lint, or unused-code tools during initial analysis.
+## 7. Verify and converge
 
-After implementation, run the checks declared in the proposal, starting with the narrowest useful signal. Broaden only when the change surface or repository instructions justify it. Separate pre-existing or unrelated failures from regressions caused by the session; do not repair external failures without authorization.
+Choose proportional checks from repository instructions and risk. Start with the narrowest useful test, lint, typecheck, or build signal and broaden only when justified.
 
-Do not mark a cluster ready unless its planned checks pass or the user explicitly accepts a documented limitation.
+When a session change causes a failure, diagnose and correct it automatically. Require a new diagnosis before each new edit, do not repeat a failed strategy without new evidence, and after two consecutive attempts without measurable progress, change source, tool, or approach. If no reasonable supported alternative remains, pause.
 
-## 7. Detect drift
+Any pre-existing or external failure is an autonomy stop condition in automatic modes. Do not repair it outside the active-thread scope. Mention verification in PR replies only when it helps explain the resolution.
 
-Refresh remote PR state before each implementation and before responding:
+## 8. Detect drift
 
-- new commits
-- new or resolved threads
-- changed anchors or status
+Refresh remote PR commits and thread state before implementation and before publication. Incorporate new active threads on the same PR automatically when they remain within the session's authority. Recalculate affected clusters, dependencies, and checks when the diff changes.
 
-Continue silently when drift does not affect the current decision. Pause only when it changes intent, evidence, cluster membership, or change surface. Never pull, merge, or rebase automatically.
+Ignore irrelevant drift. Pause only when drift meets an autonomy stop condition. Never pull, merge, or rebase automatically. Before publication, require a stable inventory in which every eligible active thread is covered.
 
-## 8. Publish code
+## 9. Publish atomically
 
-After all approved implementations and verification:
+`auto-local` stops after local implementation and verification. Report session changes, checks, and the threads they would address.
 
-1. Show session changes separately from pre-existing changes.
-2. Ask whether Review Pilot should prepare the commit and push, or the user will publish manually.
-3. Treat commit and push as separate explicit permissions.
-4. If the user publishes manually, wait for confirmation that the changes are visible on the PR.
+`auto-publish` uses two phases:
 
-Never claim a local-only change is available to reviewers.
+1. Implement and verify all eligible threads locally.
+2. Only when no autonomy stop condition remains, create coherent new commit(s), push normally to the PR head branch, then reply to and resolve eligible threads.
 
-## 9. Respond to threads
+Do not partially publish by default. If a stop condition appears, leave all session changes local until the user resolves it, explicitly defers the blocked thread, or authorizes publication of the completed subset.
 
-Ask once for the response mode:
+Stage only attributable session files or hunks. Never amend existing commits, include pre-existing changes, or force-push. Refresh after ambiguous network failures before retrying any mutation.
 
-- **Automatic (recommended):** draft, publish, and resolve each eligible thread without previewing every draft.
-- **Review first:** present each draft for adjustment before publication.
+## 10. Respond to threads
 
-Write every response independently in the thread’s predominant language. Address its exact request, state what changed, and mention verification only when useful. Do not mention clusters, subagents, approvals, or internal tooling. Avoid generic “done” replies when context is needed.
+In `guided`, obtain the selected response mode before mutations. In `auto-publish`, independent replies and eligible thread resolution are authorized by the initial execution mode.
 
-Resolve only threads fully addressed by published changes or conclusive evidence. Keep partial, ambiguous, or limited resolutions open. Refresh thread status immediately before every mutation and skip threads another participant already resolved.
+For every active thread:
 
-Finish when every active thread is resolved, responded to, explicitly deferred, or blocked with a concrete reason. Do not add a redundant closing summary.
+- **change request**: state the published change that addresses its exact request
+- **question**: answer from verified evidence
+- **already addressed**: point to the current behavior or published change
+- **non-actionable or incorrect**: respond respectfully with concise evidence
+- **partial or ambiguous**: explain only the relevant limitation and leave it open
+- **blocked internally**: publish nothing about the stop condition and leave it open
+
+Write each reply in the thread's predominant language. Do not mention clusters, agents, approvals, internal sources, or tools. Resolve only after a required reply succeeds and only when published changes or conclusive evidence fully address the thread. Refresh immediately before mutation and skip a thread another participant already resolved.
+
+## Completion and traceability
+
+Maintain an internal session record of thread dispositions, clusters, evidence, files, checks, commits, replies, and resolutions. Do not write this record into the reviewed repository or PR discussion.
+
+- `auto-local`: report local changes, checks, and threads covered.
+- `auto-publish`: report commits/push and counts of replied, resolved, and intentionally open threads.
+- stopped session: report only the stop condition, relevant evidence, and concrete choices.
+
+Finish only when every active thread is resolved, responded to, explicitly deferred, or blocked with a concrete internal reason. Avoid a redundant narrative recap.

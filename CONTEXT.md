@@ -21,7 +21,7 @@ A consolidated explanation of the root cause, affected Active Threads, considere
 _Avoid_: Per-comment recommendation, implementation plan
 
 **Cluster Approval**:
-Human authorization to implement a complete Cluster Proposal. One approval covers every Active Thread explicitly included in that Comment Cluster, but does not authorize posting replies or resolving GitHub threads.
+Human authorization in `guided` mode to implement a complete Cluster Proposal. One approval covers every Active Thread explicitly included in that Comment Cluster, but does not authorize posting replies or resolving GitHub threads. Automatic Execution Modes do not require Cluster Approval.
 _Avoid_: Comment approval, blanket approval
 
 **Workstream**:
@@ -69,7 +69,7 @@ An independent explanation of how a specific Active Thread was addressed, based 
 _Avoid_: Cluster response, shared reply
 
 **Thread Approval**:
-Authorization to publish a Thread Resolution and, when appropriate, resolve its Active Thread. It may be granted through thread-by-thread review or an automatic mode explicitly selected for the Response Phase; it is never inherited from Cluster Approval.
+Authorization to publish a Thread Resolution and, when appropriate, resolve its Active Thread. In `guided` mode it is granted through the selected Response Mode; in `auto-publish` it is granted by the explicitly selected Execution Mode. It is never inherited from Cluster Approval.
 _Avoid_: Cluster Approval, implicit publication
 
 **Cluster Rationale**:
@@ -117,7 +117,7 @@ A viable, concise alternative for addressing the Current Item, described by its 
 _Avoid_: Exhaustive design, artificial alternative
 
 **Publication Decision**:
-The explicit choice between authorizing the skill to publish Session Changes to the remote branch or leaving that action to the user. It occurs after implementation and verification and before replying that threads have been addressed.
+The explicit `guided`-mode choice between authorizing the skill to publish Session Changes to the remote branch or leaving that action to the user. Automatic modes define publication authority at session startup instead.
 _Avoid_: Cluster Approval, implicit push
 
 **Response Phase**:
@@ -125,7 +125,7 @@ The final phase of the Resolution Session in which an independent Thread Resolut
 _Avoid_: Cluster response, implementation phase
 
 **Response Mode**:
-The explicit preference between automatically publishing eligible Thread Resolutions or reviewing them individually before publication. In both modes, every response retains independent context and content.
+The `guided`-mode preference between automatically publishing eligible Thread Resolutions or reviewing them individually before publication. In every Execution Mode, each response retains independent context and content.
 _Avoid_: Shared reply, implicit approval
 
 **Session Drift**:

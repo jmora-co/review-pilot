@@ -1,3 +1,3 @@
-# Separate change and publication authority
+# Make publication authority explicit per session
 
-Review Pilot separates approval to modify code from approval to commit, push, reply, and resolve GitHub threads. This preserves proactive execution inside a declared change surface while preventing local implementation approval from silently becoming repository history or external communication; the extra gates are deliberately placed only at meaningful authority boundaries to keep the workflow low-friction.
+Review Pilot makes publication authority explicit through the execution mode selected at the start of each session. `guided` separates approval to modify code from approval to commit, push, reply, and resolve. `auto-local` authorizes autonomous local implementation and verification but no remote mutation. `auto-publish` explicitly bundles commit, push, independent replies, and eligible thread resolution after a successful atomic local phase. Publication authority is never inferred, remembered across sessions, or delegated to subagents. This keeps the safe guided boundary while allowing a user to grant end-to-end authority deliberately.

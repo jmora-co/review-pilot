@@ -1,36 +1,63 @@
 # Review Pilot functional specification
 
-Review Pilot resolves active GitHub pull-request feedback with guided autonomy. It minimizes setup interaction, detects shared causes across threads, coordinates approved changes, verifies them proportionally, publishes code only with permission, and responds to each thread in its own context.
+Review Pilot resolves active GitHub pull-request feedback with an explicit per-session authority policy. It supports guided decisions, autonomous local resolution, and autonomous end-to-end publication while keeping every GitHub response independent and evidence-based.
+
+## Execution modes
+
+- `guided`: analyze one current item at a time and preserve separate approvals for implementation, publication, replies, and resolution.
+- `auto-local`: autonomously analyze, implement, and verify all eligible active threads; leave every change local.
+- `auto-publish`: perform the complete local phase, then atomically commit, push, reply to, and resolve eligible threads.
+
+The mode is explicitly selected at startup and applies only to the current session. When absent, Review Pilot asks once and recommends `auto-local`. Publication authority is never inferred or remembered. Authority may be reduced at any time; expanding from local to publication requires explicit authorization.
 
 ## Session flow
 
-1. Identify the PR from the prompt or ask once for its branch/URL/number.
+1. Select the execution mode and identify the PR.
 2. Validate authentication, PR identity, branch position, and pre-existing changes.
-3. Read full review threads and relevant repository context.
+3. Read full review threads and evidence from the repo, PR, official docs, and available trusted tools.
 4. Build an internal inventory, dispositions, clusters, dependencies, and order.
-5. Present only the current independent thread or cluster with concise options and a recommendation.
-6. Obtain cluster approval, implement its declared change surface, and verify proportionally.
-7. Recalculate the inventory and continue automatically until implementation work is complete.
-8. Ask whether Review Pilot should commit/push or the user will publish manually.
-9. After changes are visible in the PR, choose automatic or review-first response mode.
-10. Draft and publish an independent contextual response for every addressed thread; resolve only eligible threads.
+5. In automatic modes, choose the strongest supported resolution and work through all eligible threads without approval gates.
+6. Delegate only large independent workstreams under explicit contracts; the lead owns synthesis and publication.
+7. Verify proportionally and correct failures caused by session changes.
+8. Refresh remote state and incorporate eligible new threads or material drift.
+9. In `auto-local`, stop with attributable local changes and verification evidence.
+10. In `auto-publish`, publish only after the complete local phase succeeds without an outstanding stop condition.
+11. Draft an independent contextual response for every addressed thread and resolve only eligible threads.
 
-## Approval boundaries
+## Decision evidence
 
-- Cluster approval authorizes only the declared change surface.
-- Material expansion requires renewed approval.
-- Commit and push are separately authorized actions.
-- Response mode explicitly authorizes automatic publication or per-thread preview.
-- Branch changes, stash, merge, rebase, and destructive worktree operations always require authorization.
+Technical decisions prefer repository contracts; current code, tests, history, and diff; complete PR conversations; official dependency documentation; trusted MCPs/connectors; and finally general engineering conventions. Reasoning and operational tooling remain internal. Conflicting authoritative evidence or insufficient proof for a material decision suspends automatic execution.
 
-## Clustering
+## Autonomy boundaries
 
-A cluster is an internal analysis and implementation unit. Threads may cluster only through a demonstrated shared cause, coherent shared solution, dependency, or conflict. Every GitHub response remains independent and understandable without knowledge of the cluster.
+Automatic modes stop for reviewer or contract conflicts, destructive operations, unsafe branch state, work outside active-thread authority, unclear high-impact changes, insufficient verification, any external or pre-existing verification failure, unavailable permissions, material remote drift, unsafe attribution of local changes, or lack of evidence-backed progress.
 
-## Delegation
+A stop condition is internal and never appears in PR comments. The user receives the relevant evidence and concrete choices, then the session resumes from the suspended point after the condition is resolved.
 
-Use subagents for large, independent workstreams. Parallel investigators may read distinct areas. Parallel implementers require disjoint write surfaces. The lead agent owns synthesis, combined diff review, and integrated verification.
+## Local-change safety
 
-## Completion
+Review Pilot snapshots the initial worktree and distinguishes session changes from pre-existing changes. It may continue when attribution is certain, including exact hunk separation, but never stages unrelated work. It never automatically switches branches, stashes, rebases, merges, resets, amends, discards changes, or force-pushes.
 
-A session ends only when every active thread is resolved, responded to, explicitly deferred, or blocked with a concrete reason. It does not emit a redundant final recap.
+## Clustering and delegation
+
+Clusters are internal analysis and implementation units justified by a shared cause, coherent solution, dependency, or conflict. They never replace thread-specific replies. Automatic modes do not require cluster approval.
+
+Subagents may investigate distinct areas or edit disjoint surfaces under Workstream Contracts. They cannot commit, push, change branches, mutate GitHub, or expand scope. The Resolution Lead reviews the combined diff and owns integrated verification and all remote actions.
+
+## Verification and convergence
+
+Checks are proportional to repository guidance and change risk. Session-caused failures are diagnosed and repaired autonomously. An unchanged failed strategy is not repeated without new evidence; stalled work changes approach and eventually suspends when no supported route remains. Any external or pre-existing failure suspends automatic execution and is not repaired under incidental authority.
+
+## Atomic publication
+
+`auto-publish` completes implementation and verification for all eligible threads before any remote mutation. With no outstanding stop condition, it stages only attributable session changes, creates coherent new commits, pushes normally to the PR head, then replies to and resolves eligible threads.
+
+Partial publication requires a new explicit decision after a stop condition. Ambiguous mutation failures are refreshed before retry to prevent duplicate commits or replies.
+
+## Thread outcomes
+
+Change requests receive published changes; questions receive evidence-backed answers; already-addressed or non-actionable threads receive concise explanations. Partial or ambiguous threads stay open. Internal stop conditions are never disclosed or replied to. Every response stands alone, uses the thread's language, and omits clusters, tools, agents, and internal reasoning.
+
+## Traceability and completion
+
+The session internally tracks dispositions, evidence, files, checks, commits, replies, and resolutions without writing an audit artifact into the reviewed repo or PR. User-facing completion is compact and mode-specific. A session is complete only when each active thread is resolved, responded to, explicitly deferred, or blocked with a concrete internal reason.
