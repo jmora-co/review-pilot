@@ -135,3 +135,7 @@ _Avoid_: Any remote update, automatic rebase
 **Execution Mode**:
 The explicit operating policy selected at the start of each Resolution Session. `guided` preserves human approval boundaries, `auto-local` authorizes autonomous analysis, implementation, and verification without publication, and `auto-publish` additionally authorizes committing, pushing, responding to, and resolving eligible threads. It applies only to the current session and is never inferred from ambiguous intent.
 _Avoid_: Remembered preference, implicit autonomy, response mode
+
+**Autonomy Stop Condition**:
+A condition that suspends an automatic Execution Mode because proceeding requires human authority or judgment: conflicting feedback or repository contracts, destructive history or worktree operations, scope outside active threads, high-impact changes not clearly required by those threads, insufficient verification evidence, any External Failure encountered during verification, unavailable credentials or permissions, or material Session Drift. It is internal operating state and is never disclosed in pull-request comments. Ordinary technical choices within the authorized feedback remain the agent's responsibility.
+_Avoid_: Cluster approval, routine uncertainty, implementation preference
