@@ -133,8 +133,12 @@ A remote change to pull-request commits, threads, or statuses that occurs during
 _Avoid_: Any remote update, automatic rebase
 
 **Execution Mode**:
-The explicit operating policy selected at the start of each Resolution Session. `guided` preserves human approval boundaries, `auto-local` authorizes autonomous analysis, implementation, and verification without publication, and `auto-publish` additionally authorizes committing, pushing, responding to, and resolving eligible threads. It applies only to the current session and is never inferred from ambiguous intent.
+The explicit operating policy selected at the start of each Resolution Session through a structured question or numbered list when absent. Auto Review (`auto-local`) authorizes autonomous analysis, implementation, and verification without publication; Auto Pilot (`auto-publish`) additionally authorizes committing, pushing, responding to, and resolving eligible threads; Guided (`guided`) preserves human approval boundaries. Human-facing names and common aliases are accepted. The mode applies only to the current session and is never inferred from ambiguous intent.
 _Avoid_: Remembered preference, implicit autonomy, response mode
+
+**Applicable Project Rule**:
+A repository instruction that governs the current Active Thread, file, Change Surface, or verification. Rules are discovered progressively from root policy files and nearer scoped instruction files, loaded only when relevant, indexed for reuse, and resolved in favor of the most specific applicable scope.
+_Avoid_: Preloaded documentation corpus, ignored repository guidance
 
 **Autonomy Stop Condition**:
 A condition that suspends an automatic Execution Mode because proceeding requires human authority or judgment: conflicting feedback or repository contracts, destructive history or worktree operations, scope outside active threads, high-impact changes not clearly required by those threads, insufficient verification evidence, any External Failure encountered during verification, unavailable credentials or permissions, or material Session Drift. It is internal operating state and is never disclosed in pull-request comments. Ordinary technical choices within the authorized feedback remain the agent's responsibility.

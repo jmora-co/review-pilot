@@ -21,11 +21,15 @@ Read [references/github-operations.md](references/github-operations.md) before q
 
 ## 1. Select the execution mode
 
-Use an execution mode explicitly named in the prompt. Otherwise ask once before expensive analysis or mutation:
+Recognize both the human-facing names and their canonical identifiers:
 
-- **`guided`**: present decisions and preserve separate human approval for code changes, commit, push, replies, and thread resolution.
-- **`auto-local` (recommended)**: autonomously analyze, implement, and verify every eligible active thread. Do not commit, push, reply, or resolve threads.
-- **`auto-publish`**: do everything in `auto-local`, cross the all-local publication gate, then commit and push session changes and independently reply to and resolve eligible threads.
+1. **Auto Review** (`auto-local`, recommended): autonomously analyze, implement, and verify every eligible active thread. Do not commit, push, reply, or resolve threads.
+2. **Auto Pilot** (`auto-publish`): do everything in Auto Review, cross the all-local publication gate, then commit and push session changes and independently reply to and resolve eligible threads.
+3. **Guided** (`guided`): present decisions and preserve separate human approval for code changes, commit, push, replies, and thread resolution.
+
+Use a structured user-question tool such as `AskUserQuestion` when available. Present the three choices above as selectable options with Auto Review first and recommended. If no structured question tool is available, show the same numbered list and ask the user to reply with the number or name. Do not require the user to remember canonical identifiers.
+
+Use a mode explicitly named in the prompt without asking again. Treat “auto review,” “auto-review,” and `auto-local` as Auto Review; treat “auto pilot,” “autopilot,” “auto-pilot,” and `auto-publish` as Auto Pilot. Otherwise ask once before expensive analysis or mutation.
 
 An automatic mode is opt-in for the current session only. Never infer `auto-publish` from ambiguous language or remember it across sessions. The user may reduce authority at any time. Moving from `auto-local` to `auto-publish` requires explicit authorization.
 
@@ -46,6 +50,17 @@ Use `scripts/fetch_review_threads.py` when `gh` is available. Accept an alternat
 Collect PR metadata and diff; every unresolved thread, including outdated threads; useful resolved threads and general discussion; repository instructions; relevant code, tests, and history.
 
 Never treat a flat comment list as equivalent to review threads. Never treat `outdated` as `resolved`.
+
+Discover repository rules progressively:
+
+1. At startup, list candidate root instruction files without loading all documentation. Prefer `REVIEW.md`, `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, and equivalent files explicitly identified by the repository.
+2. Read the small root instruction set needed to establish review policy and instruction precedence. Do not recursively preload referenced documents.
+3. When a thread or Change Surface selects files, search their ancestor directories for nearer instruction files and load only those applicable to the current work.
+4. Follow links from an instruction file only when the referenced material governs the current thread, language, module, or check.
+5. Maintain an internal index of loaded instruction files and their scope; reuse it instead of rereading unchanged content.
+6. Apply the most specific applicable instruction when scoped rules differ. Pause on a genuine conflict that precedence cannot resolve.
+
+This is progressive disclosure, not optional discovery: applicable project review and implementation rules must be loaded before deciding, editing, verifying, or replying about their scoped files.
 
 Ground technical decisions in this order:
 
@@ -152,6 +167,8 @@ In `guided` mode after approved implementation and verification:
 
 In `guided`, obtain the selected response mode before mutations. In `auto-publish`, independent replies and eligible thread resolution are authorized by the initial execution mode.
 
+In Auto Pilot, the Response Phase is mandatory after the push is verified. Do not report the session as completed immediately after commit or push. Refresh the active-thread inventory, attempt every response-eligible reply, resolve every resolution-eligible thread, and record the result of each mutation. If replies cannot be published, the session is suspended or partially published rather than completed.
+
 For every active thread:
 
 - **change request**: state the published change that addresses its exact request
@@ -178,8 +195,8 @@ Use the natural shape: `Updated: <concrete change>. <relevant result or verifica
 
 Maintain an internal session record of thread dispositions, clusters, evidence, files, checks, commits, replies, and resolutions. Do not write this record into the reviewed repository or PR discussion.
 
-- `auto-local`: report local changes, checks, and threads covered.
-- `auto-publish`: report commits/push and counts of replied, resolved, and intentionally open threads.
+- Auto Review: report local changes, checks, and threads covered.
+- Auto Pilot: report commits/push and counts of replied, resolved, and intentionally open threads. A zero reply count must be explained by the eligibility inventory; never omit the Response Phase silently.
 - suspended session: report only the stop condition, relevant evidence, and concrete choices.
 
 A session is **completed** only when every active thread is resolved, responded to, or explicitly deferred. An unresolved autonomy stop condition makes the session **suspended**, not completed. If remote publication has begun but cannot finish, report it as **partially published** with exact successful and pending mutations. Avoid a redundant narrative recap.

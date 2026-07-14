@@ -4,11 +4,11 @@ Review Pilot resolves active GitHub pull-request feedback with an explicit per-s
 
 ## Execution modes
 
-- `guided`: analyze one current item at a time and preserve separate approvals for implementation, publication, replies, and resolution.
-- `auto-local`: autonomously analyze, implement, and verify all eligible active threads; leave every change local.
-- `auto-publish`: perform the complete local phase, cross the publication gate, then commit, push, reply to, and resolve eligible threads with idempotent recovery.
+- Auto Review (`auto-local`): autonomously analyze, implement, and verify all eligible active threads; leave every change local.
+- Auto Pilot (`auto-publish`): perform the complete local phase, cross the publication gate, then commit, push, reply to, and resolve eligible threads with idempotent recovery.
+- Guided (`guided`): analyze one current item at a time and preserve separate approvals for implementation, publication, replies, and resolution.
 
-The mode is explicitly selected at startup and applies only to the current session. When absent, Review Pilot asks once and recommends `auto-local`. Publication authority is never inferred or remembered. Authority may be reduced at any time; expanding from local to publication requires explicit authorization.
+The mode is explicitly selected at startup and applies only to the current session. Human-facing names and common aliases are accepted. When absent, Review Pilot uses a structured selection question when available, otherwise a numbered list, with Auto Review first and recommended. Publication authority is never inferred or remembered. Authority may be reduced at any time; expanding from local to publication requires explicit authorization.
 
 ## Session flow
 
@@ -27,6 +27,8 @@ The mode is explicitly selected at startup and applies only to the current sessi
 ## Decision evidence
 
 Technical decisions prefer repository contracts; current code, tests, history, and diff; complete PR conversations; official dependency documentation; trusted MCPs/connectors; and finally general engineering conventions. Reasoning and operational tooling remain internal. Conflicting authoritative evidence or insufficient proof for a material decision suspends automatic execution.
+
+Repository rules use progressive disclosure. Review Pilot discovers root instruction files such as `REVIEW.md`, `AGENTS.md`, `CLAUDE.md`, and `CONTRIBUTING.md`, loads the minimum root policy needed, then loads nearer scoped instructions and referenced documents only when the current thread or Change Surface makes them applicable. Loaded rules are indexed and reused; the most specific applicable rule wins unless a genuine conflict requires suspension.
 
 ## Autonomy boundaries
 
@@ -59,6 +61,8 @@ Eligibility is phase-specific: implementation eligibility requires an authorized
 ## Thread outcomes
 
 Change requests receive published changes; questions receive evidence-backed answers; already-addressed or non-actionable threads receive concise explanations. Partial or ambiguous threads stay open. Internal stop conditions are never disclosed or replied to. Every response stands alone, uses the thread's language, and omits clusters, tools, agents, and internal reasoning.
+
+Auto Pilot cannot complete at commit or push. After verifying the pushed head, it refreshes the inventory and executes the mandatory Response Phase for every response-eligible and resolution-eligible thread. A failed or skipped response phase suspends the session or leaves it partially published; a zero reply count requires an eligibility-based explanation.
 
 Responses prefer one short paragraph of one to three sentences. Their tone is friendly, neutral, professional, and factual, with no flattery, praise, thanks, reviewer evaluation, ceremonial opening, or unnecessary closing. They state the concrete change or decision directly and mention verification only when it adds useful confidence.
 
