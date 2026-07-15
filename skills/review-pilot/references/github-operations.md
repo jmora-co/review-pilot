@@ -4,6 +4,12 @@ Use GitHub review-thread nodes rather than flat pull-request comments.
 
 Only the Resolution Lead may mutate GitHub. `auto-local` performs read operations only. `auto-publish` authorizes the mutations below only after the complete local implementation and verification phase succeeds without an outstanding autonomy stop condition. This gate is atomic, but the sequence of Git and GitHub mutations is not transactional; recover partial success idempotently.
 
+## Authentication environment
+
+Start with a minimal read-only `gh auth status` probe. If it fails in a sandbox because credentials, keychain state, environment, socket, or network are unavailable, request native permission escalation and retry the same narrow read-only probe in the host environment before treating authentication as invalid. Do not expose tokens or ask for login until the host probe also fails.
+
+If the bundled Python helper cannot see authentication but direct `gh` succeeds, use direct `gh api graphql` calls or execute the helper in the matching authenticated environment. Permission escalation does not authorize mutation: replies, resolution, commit, and push still follow the Execution Mode and Guided approval boundaries.
+
 ## Read contract
 
 The minimum usable thread record contains:

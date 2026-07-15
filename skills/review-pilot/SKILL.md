@@ -37,7 +37,7 @@ An automatic mode is opt-in for the current session only. Never infer `auto-publ
 
 1. Use a supplied PR URL, number, or branch. Otherwise infer the PR from the current branch.
 2. If inference fails or is ambiguous, ask one short question for the PR or branch.
-3. Check GitHub authentication, repository identity, PR head branch, current branch, HEAD, and working-tree status.
+3. Check GitHub authentication, repository identity, PR head branch, current branch, HEAD, and working-tree status. Follow the sandbox-aware authentication procedure below before concluding that GitHub access is unavailable.
 4. Permit read-only analysis from another branch, but require the PR head branch before editing. In an automatic mode, a mismatch is an autonomy stop condition; ask the user to switch or explicitly authorize the exact safe action.
 5. Record pre-existing changes before editing. Never include them in a session commit.
 6. Continue when pre-existing and session changes can be separated safely, including by exact hunks. Pause when attribution is uncertain.
@@ -73,6 +73,18 @@ Ground technical decisions in this order:
 
 Keep evidence and alternatives internal. If authoritative sources conflict or evidence is insufficient for a material decision, pause under an autonomy stop condition.
 
+### Sandbox-aware GitHub authentication
+
+Some agent sandboxes cannot see the user's GitHub CLI config, keychain, socket, environment, or network even when `gh` is authenticated in the host session.
+
+1. Run a minimal read-only probe in the current environment, preferably `gh auth status` followed by a read-only command such as `gh repo view` or `gh api user` when needed.
+2. Treat missing config/keychain access, sandbox network errors, or authentication that is known to work in the user's host shell as a possible **Auth Environment Mismatch**, not proof that credentials are invalid.
+3. When the runtime supports permission escalation, request it through the native approval mechanism and rerun the same minimal read-only probe outside the sandbox. Explain that this only lets `gh` use the user's existing authenticated host environment.
+4. If a helper subprocess reports invalid authentication but direct `gh` succeeds in the authenticated environment, bypass the helper for GitHub calls or run it in that same environment. Do not ask the user to log in again.
+5. Conclude that authentication is unavailable only when the host-environment probe also fails. Then show the exact failure and ask the user to repair access.
+
+Never print or copy tokens. Running outside the sandbox does not grant new action authority: mutations still require the selected Execution Mode or the applicable Guided approval. Escalate the narrowest command possible, preserve the command's read/write intent, and never use escalation to bypass a denied GitHub operation.
+
 ## 4. Build the internal inventory
 
 Classify every active thread as a change request, question, already addressed, blocked or ambiguous, or non-actionable.
@@ -89,7 +101,17 @@ Determine eligibility per phase:
 
 A thread may be response-eligible without requiring implementation. Local-only changes never make a thread response-eligible for a claim that the PR was updated.
 
-In automatic modes, choose and execute the best-supported resolution without presenting options. In `guided`, present the current independent thread or cluster with concise genuine options, evidence, expected change surface, proportional verification, and a recommendation; obtain approval before editing.
+In automatic modes, choose and execute the best-supported resolution without presenting options.
+
+In Guided, present the current independent thread or cluster as a human-friendly decision:
+
+1. State the reviewer's intent and the relevant evidence briefly.
+2. Offer only genuine Resolution Options in a numbered list. Put the recommended option first and label it **Recommended**.
+3. Give each option a short name plus one sentence covering its essential change and trade-off.
+4. Include “no code change” only when a factual reply can fully address the thread.
+5. Use a structured user-question tool when available; otherwise ask the user to reply with the option number. Do not require a prose response.
+
+After selection, implement and verify that option. If iteration changes the solution, keep the selected option current rather than restarting the decision unnecessarily.
 
 ## 5. Autonomy stop conditions
 
@@ -158,14 +180,17 @@ When no Session Changes exist because every thread requires only an evidence-bac
 In `guided` mode after approved implementation and verification:
 
 1. Show Session Changes separately from Pre-existing Changes.
-2. Ask whether Review Pilot or the user will publish.
-3. If Review Pilot publishes, obtain separate authorization for commit and push, stage only attributable changes, and verify the pushed head.
-4. If the user publishes, wait until they confirm the changes are visible on the PR.
-5. Ask once whether eligible Thread Resolutions should be published automatically or reviewed one at a time.
+2. Draft the Guided Thread Resolution for every completed current item before asking about publication.
+3. Ask whether Review Pilot or the user will publish the code.
+4. If Review Pilot publishes, obtain separate authorization for commit and push, stage only attributable changes, and verify the pushed head.
+5. If the user publishes, wait until they confirm the changes are visible on the PR.
+6. Ask once whether eligible Thread Resolutions should be published automatically or reviewed one at a time.
 
 ## 10. Respond to threads
 
 In `guided`, obtain the selected response mode before mutations. In `auto-publish`, independent replies and eligible thread resolution are authorized by the initial execution mode.
+
+In Guided, selecting or iterating a solution always produces a **Guided Thread Resolution draft** for the current item after implementation and verification. Present the draft even when changes remain local, clearly marking it as not yet publishable. It must follow the Response Style and include enough concrete detail to explain what changed, where the behavior now lives, and the relevant verification. Drafting is automatic; publishing and resolving remain separately authorized.
 
 In Auto Pilot, the Response Phase is mandatory after the push is verified. Do not report the session as completed immediately after commit or push. Refresh the active-thread inventory, attempt every response-eligible reply, resolve every resolution-eligible thread, and record the result of each mutation. If replies cannot be published, the session is suspended or partially published rather than completed.
 

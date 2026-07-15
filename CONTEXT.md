@@ -155,3 +155,11 @@ _Avoid_: Transactional publication, guaranteed rollback
 **Response Style**:
 The required voice of every Thread Resolution: one short paragraph when possible, friendly, neutral, professional, and factual. It states the concrete change or decision directly, mentions verification only when useful, and excludes flattery, praise, thanks, reviewer evaluation, ceremonial openings, unnecessary closings, and internal process details.
 _Avoid_: Great catch, good point, thanks for noticing, let me know what you think
+
+**Guided Thread Resolution**:
+The response draft produced after a Guided Resolution Option has been implemented and verified. It describes the concrete change and relevant verification using the Response Style. It may be shown while changes are local, but it cannot claim publication and requires separate authority before posting or resolving its Active Thread.
+_Avoid_: Implementation summary, automatically published reply
+
+**Auth Environment Mismatch**:
+A condition where a sandboxed process cannot access the GitHub CLI authentication, keychain state, environment, socket, or network available to the user's host session. It requires a narrow host-environment probe through the runtime's native escalation mechanism before authentication is declared unavailable, and it never expands mutation authority.
+_Avoid_: Invalid token without host verification, authentication bypass

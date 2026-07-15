@@ -10,6 +10,8 @@ Review Pilot resolves active GitHub pull-request feedback with an explicit per-s
 
 The mode is explicitly selected at startup and applies only to the current session. Human-facing names and common aliases are accepted. When absent, Review Pilot uses a structured selection question when available, otherwise a numbered list, with Auto Review first and recommended. Publication authority is never inferred or remembered. Authority may be reduced at any time; expanding from local to publication requires explicit authorization.
 
+Guided solution proposals are structured choices rather than open-ended prompts. Genuine options are numbered, the recommendation appears first, and each option has a short name and one-sentence trade-off. A structured question tool is preferred; the fallback accepts an option number.
+
 ## Session flow
 
 1. Select the execution mode and identify the PR.
@@ -29,6 +31,8 @@ The mode is explicitly selected at startup and applies only to the current sessi
 Technical decisions prefer repository contracts; current code, tests, history, and diff; complete PR conversations; official dependency documentation; trusted MCPs/connectors; and finally general engineering conventions. Reasoning and operational tooling remain internal. Conflicting authoritative evidence or insufficient proof for a material decision suspends automatic execution.
 
 Repository rules use progressive disclosure. Review Pilot discovers root instruction files such as `REVIEW.md`, `AGENTS.md`, `CLAUDE.md`, and `CONTRIBUTING.md`, loads the minimum root policy needed, then loads nearer scoped instructions and referenced documents only when the current thread or Change Surface makes them applicable. Loaded rules are indexed and reused; the most specific applicable rule wins unless a genuine conflict requires suspension.
+
+GitHub authentication is sandbox-aware. A failed sandbox probe may indicate that the isolated process cannot access host credentials, keychain state, or network. When supported, Review Pilot requests native escalation and repeats the same minimal read-only probe in the host-authenticated environment before declaring access unavailable. Escalation changes only execution environment, never mutation authority; tokens are never printed or copied. If direct `gh` succeeds while a helper subprocess fails, direct `gh` or the matching authenticated environment is used.
 
 ## Autonomy boundaries
 
@@ -65,6 +69,8 @@ Change requests receive published changes; questions receive evidence-backed ans
 Auto Pilot cannot complete at commit or push. After verifying the pushed head, it refreshes the inventory and executes the mandatory Response Phase for every response-eligible and resolution-eligible thread. A failed or skipped response phase suspends the session or leaves it partially published; a zero reply count requires an eligibility-based explanation.
 
 Responses prefer one short paragraph of one to three sentences. Their tone is friendly, neutral, professional, and factual, with no flattery, praise, thanks, reviewer evaluation, ceremonial opening, or unnecessary closing. They state the concrete change or decision directly and mention verification only when it adds useful confidence.
+
+In Guided, every selected and implemented solution produces a Thread Resolution draft after verification, including concrete detail about what changed and relevant verification. The draft is shown even while changes are local, but it cannot claim publication and is not posted or resolved without the separate response authorization.
 
 ## Traceability and completion
 
