@@ -69,7 +69,7 @@ An independent explanation of how a specific Active Thread was addressed, based 
 _Avoid_: Cluster response, shared reply
 
 **Thread Approval**:
-Authorization to publish a Thread Resolution and, when appropriate, resolve its Active Thread. In `guided` mode it is granted through the selected Response Mode; in `auto-publish` it is granted by the explicitly selected Execution Mode. It is never inherited from Cluster Approval.
+Authorization to publish a Thread Resolution. In `guided` mode it is granted either for the exact no-change draft at the Current Item or through the selected Response Mode for eligible change-backed drafts; in `auto-publish` it is granted by the explicitly selected Execution Mode. It never authorizes thread resolution and is never inherited from Cluster Approval.
 _Avoid_: Cluster Approval, implicit publication
 
 **Cluster Rationale**:
@@ -121,11 +121,11 @@ The explicit `guided`-mode choice between authorizing the skill to publish Sessi
 _Avoid_: Cluster Approval, implicit push
 
 **Response Phase**:
-The final phase of the Resolution Session in which an independent Thread Resolution is drafted and presented for each addressed Active Thread, after determining whether its changes are local or published.
+The response work in which an independent Thread Resolution is drafted and presented for each addressed Active Thread after determining whether its changes are local or published. In Guided, a selected no-change option advances through this work immediately for its Current Item instead of waiting for the end of the session.
 _Avoid_: Cluster response, implementation phase
 
 **Response Mode**:
-The `guided`-mode preference between automatically publishing eligible Thread Resolutions or reviewing them individually before publication. In every Execution Mode, each response retains independent context and content.
+The `guided`-mode preference between automatically publishing eligible change-backed Thread Resolutions or reviewing them individually before publication. A selected no-change option uses immediate approval of its exact draft instead. In every Execution Mode, each response retains independent context and content.
 _Avoid_: Shared reply, implicit approval
 
 **Session Drift**:
@@ -157,7 +157,7 @@ The required voice of every Thread Resolution: one short paragraph when possible
 _Avoid_: Great catch, good point, thanks for noticing, let me know what you think
 
 **Guided Thread Resolution**:
-The response draft produced after a Guided Resolution Option has been implemented and verified. It describes the concrete change and relevant verification using the Response Style. It may be shown while changes are local, but it cannot claim publication and requires separate authority before posting or resolving its Active Thread.
+The response draft produced after a Guided Resolution Option has been verified. For an implemented option, it describes the concrete change and relevant verification and may be shown while changes are local without claiming publication. For a no-change option, it states the verified answer or current behavior and is presented immediately for exact-draft approval. Posting and resolving always require separate authority.
 _Avoid_: Implementation summary, automatically published reply
 
 **Auth Environment Mismatch**:

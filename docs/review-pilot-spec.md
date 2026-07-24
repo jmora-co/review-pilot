@@ -24,7 +24,7 @@ Guided solution proposals are structured choices rather than open-ended prompts.
 8. Refresh remote state and incorporate eligible new threads or material drift.
 9. In `auto-local`, stop with attributable local changes and verification evidence.
 10. In `auto-publish`, cross the publication gate only after the complete local phase succeeds without an outstanding stop condition.
-11. Draft an independent contextual response for every addressed thread and resolve only eligible threads.
+11. Draft an independent contextual response for every addressed thread and resolve only eligible threads. In Guided, handle a selected no-change response immediately at the current item instead of deferring it to the final response work.
 
 ## Decision evidence
 
@@ -70,7 +70,9 @@ Auto Pilot cannot complete at commit or push. After verifying the pushed head, i
 
 Responses prefer one short paragraph of one to three sentences. Their tone is friendly, neutral, professional, and factual, with no flattery, praise, thanks, reviewer evaluation, ceremonial opening, or unnecessary closing. They state the concrete change or decision directly and mention verification only when it adds useful confidence.
 
-In Guided, every selected and implemented solution produces a Thread Resolution draft after verification, including concrete detail about what changed and relevant verification. The draft is shown even while changes are local, but it cannot claim publication and is not posted or resolved without the separate response authorization.
+In Guided, a selected option with Session Changes produces a Thread Resolution draft after implementation and verification, including concrete detail about what changed and relevant verification. The draft is shown even while changes are local, but it cannot claim publication and is not posted or resolved without separate response authorization.
+
+When the user selects a no-code-change option, Review Pilot verifies that the current published PR state supports a factual reply, immediately drafts the Thread Resolution, and presents its exact text for approval. An approved draft is refreshed against the live thread and published immediately; it is not queued for the end of the review or a session-wide Response Mode. Draft revision, reply publication, and thread resolution remain distinct decisions, and publishing the reply never implies authorization to resolve the thread.
 
 ## Traceability and completion
 

@@ -2,7 +2,7 @@
 
 Use GitHub review-thread nodes rather than flat pull-request comments.
 
-Only the Resolution Lead may mutate GitHub. `auto-local` performs read operations only. `auto-publish` authorizes the mutations below only after the complete local implementation and verification phase succeeds without an outstanding autonomy stop condition. This gate is atomic, but the sequence of Git and GitHub mutations is not transactional; recover partial success idempotently.
+Only the Resolution Lead may mutate GitHub. `auto-local` performs read operations only. `auto-publish` authorizes the mutations below only after the complete local implementation and verification phase succeeds without an outstanding autonomy stop condition. In `guided`, publish a no-change reply immediately only after the user approves its exact draft; this approval does not authorize resolving the thread or publishing any other reply. The `auto-publish` gate is atomic, but the sequence of Git and GitHub mutations is not transactional; recover partial success idempotently.
 
 ## Authentication environment
 
@@ -63,4 +63,4 @@ Stage only session-attributable files or hunks. Create new coherent commits; nev
 
 After push, verify that the new head contains the published commits before claiming that changes are visible or replying that a change was made. If commit or push outcome is ambiguous, refresh local and remote state before any retry.
 
-Reply to each thread independently after the push is verified. Refresh the thread before every mutation, skip it if another participant resolved it, and resolve only after any required reply succeeds. A partially completed response phase must be reported accurately; never duplicate successful replies while recovering.
+For replies that depend on Session Changes, reply to each thread independently after the push is verified. For an approved Guided no-change reply, the existing PR state is already the publication basis, so refresh and publish it at the current item without waiting for a push or the end of the review. Refresh the thread before every mutation, skip it if another participant resolved it, and resolve only after any required reply succeeds and separate resolution authority exists. A partially completed response phase must be reported accurately; never duplicate successful replies while recovering.

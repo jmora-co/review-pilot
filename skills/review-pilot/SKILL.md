@@ -111,7 +111,10 @@ In Guided, present the current independent thread or cluster as a human-friendly
 4. Include “no code change” only when a factual reply can fully address the thread.
 5. Use a structured user-question tool when available; otherwise ask the user to reply with the option number. Do not require a prose response.
 
-After selection, implement and verify that option. If iteration changes the solution, keep the selected option current rather than restarting the decision unnecessarily.
+After selection:
+
+- If the option requires changes, implement and verify it. If iteration changes the solution, keep the selected option current rather than restarting the decision unnecessarily.
+- If the option requires no code or documentation change, verify the factual basis against the current published PR state, then move immediately to the per-thread Guided reply flow in section 10. Do not wait for other items or for the end-of-session Response Phase.
 
 ## 5. Autonomy stop conditions
 
@@ -177,20 +180,27 @@ Stage only attributable session files or hunks. Never amend existing commits, in
 
 When no Session Changes exist because every thread requires only an evidence-backed reply, verify the current PR head and stable inventory, skip empty commit/push work, and proceed directly to eligible replies and resolutions.
 
-In `guided` mode after approved implementation and verification:
+In `guided` mode, apply this publication flow only to items with Session Changes after approved implementation and verification:
 
 1. Show Session Changes separately from Pre-existing Changes.
 2. Draft the Guided Thread Resolution for every completed current item before asking about publication.
 3. Ask whether Review Pilot or the user will publish the code.
 4. If Review Pilot publishes, obtain separate authorization for commit and push, stage only attributable changes, and verify the pushed head.
 5. If the user publishes, wait until they confirm the changes are visible on the PR.
-6. Ask once whether eligible Thread Resolutions should be published automatically or reviewed one at a time.
+6. Ask once whether eligible Thread Resolutions backed by the published changes should be published automatically or reviewed one at a time. Exclude replies already handled through the no-change per-thread flow.
 
 ## 10. Respond to threads
 
-In `guided`, obtain the selected response mode before mutations. In `auto-publish`, independent replies and eligible thread resolution are authorized by the initial execution mode.
+In `guided`, use separate response authorization paths:
 
-In Guided, selecting or iterating a solution always produces a **Guided Thread Resolution draft** for the current item after implementation and verification. Present the draft even when changes remain local, clearly marking it as not yet publishable. It must follow the Response Style and include enough concrete detail to explain what changed, where the behavior now lives, and the relevant verification. Drafting is automatic; publishing and resolving remain separately authorized.
+- **No-change option:** Immediately after verifying the selected option's factual basis, draft the current item's **Guided Thread Resolution**, show the exact text, and ask for one focused approval to publish that reply now. Use a structured approval question when available. If the user requests edits, revise the draft and ask again. If approved, refresh the thread, publish the exact approved draft immediately, report the mutation result, and continue to the next current item. Do not defer it to a session-wide Response Mode or the end of the review.
+- **Option with Session Changes:** After implementation and verification, present the draft even while changes remain local and clearly mark it as not yet publishable. Once the changes are visible on the PR, obtain the selected Response Mode before reply mutations.
+
+Every Guided Thread Resolution must follow the Response Style. A change-backed draft must explain what changed, where the behavior now lives, and relevant verification. A no-change draft must state the verified answer or current behavior without implying that code was modified. Drafting is automatic; publishing and resolving remain separately authorized.
+
+Publishing an approved no-change reply does not authorize resolving its thread. After a successful reply, request resolution approval separately when the thread is resolution-eligible, unless the user has already instructed Review Pilot to leave it open.
+
+In `auto-publish`, independent replies and eligible thread resolution are authorized by the initial execution mode.
 
 In Auto Pilot, the Response Phase is mandatory after the push is verified. Do not report the session as completed immediately after commit or push. Refresh the active-thread inventory, attempt every response-eligible reply, resolve every resolution-eligible thread, and record the result of each mutation. If replies cannot be published, the session is suspended or partially published rather than completed.
 
